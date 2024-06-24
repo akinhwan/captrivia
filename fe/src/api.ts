@@ -9,6 +9,16 @@ export interface LobbyGame {
   players?: string[];
 }
 
+export interface Player {
+  player_name: string;
+  accuracy: number;
+  average_milliseconds: number;
+  correct_questions: string;
+  time_milliseconds: string;
+  total_questions: string;
+  last_update: string;
+}
+
 export class Api {
   url: string;
   client: Axios;
@@ -34,6 +44,19 @@ export class Api {
       return JSON.parse(response.data) as LobbyGame[];
     } catch (error) {
       console.error("Error fetching game list:", error);
+      throw error;
+    }
+  };
+
+  fetchLeaderboard = async (): Promise<Player[]> => {
+    try {
+      const response = await this.client.get("/leaderboard");
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch leaderboard");
+      }
+      return JSON.parse(response.data) as Player[];
+    } catch (error) {
+      console.error("Error fetching leaderboard:", error);
       throw error;
     }
   };
@@ -113,40 +136,53 @@ export class Api {
       nonce: this.generateNonce(),
       payload: {
         name,
-        question_count: question_count,
+        question_count,
       },
     };
     this.sendMessage(message);
   };
 
-  joinGame = (gameId: string) => {
+  joinGame = (game_id: string) => {
     const message = {
       type: "join",
       nonce: this.generateNonce(),
       payload: {
-        game_id: gameId,
+        game_id,
       },
     };
     this.sendMessage(message);
   };
 
-  readyGame = (gameId: string) => {
+  readyGame = (game_id: string) => {
     const message = {
       type: "ready",
       nonce: this.generateNonce(),
       payload: {
-        game_id: gameId,
+        game_id,
       },
     };
     this.sendMessage(message);
   };
 
-  startGame = (gameId: string) => {
+  startGame = (game_id: string) => {
     const message = {
       type: "start",
       nonce: this.generateNonce(),
       payload: {
-        game_id: gameId,
+        game_id,
+      },
+    };
+    this.sendMessage(message);
+  };
+
+  answerGame = (game_id: string, index: number, question_id: string) => {
+    const message = {
+      type: "answer",
+      nonce: this.generateNonce(),
+      payload: {
+        game_id,
+        index,
+        question_id,
       },
     };
     this.sendMessage(message);
