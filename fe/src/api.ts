@@ -3,9 +3,9 @@ import { Axios } from "axios";
 export interface LobbyGame {
   id: string;
   name: string;
-  questionCount: number;
+  question_count: number;
   state: "waiting" | "countdown" | "question" | "ended";
-  playerCount: number;
+  player_count: number;
   players?: string[];
 }
 
@@ -31,7 +31,7 @@ export class Api {
       if (response.status !== 200) {
         throw new Error("Failed to fetch game list");
       }
-      return response.data as LobbyGame[];
+      return JSON.parse(response.data) as LobbyGame[];
     } catch (error) {
       console.error("Error fetching game list:", error);
       throw error;
@@ -107,13 +107,13 @@ export class Api {
     }
   };
 
-  createGame = (name: string, questionCount: number) => {
+  createGame = (name: string, question_count: number) => {
     const message = {
       type: "create",
       nonce: this.generateNonce(),
       payload: {
         name,
-        questionCount,
+        question_count: question_count,
       },
     };
     this.sendMessage(message);
