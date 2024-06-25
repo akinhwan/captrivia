@@ -1,4 +1,5 @@
 import { Axios } from "axios";
+import { triggerToast } from "./App";
 
 export interface LobbyGame {
   id: string;
@@ -127,6 +128,7 @@ export class Api {
       this.socket.send(JSON.stringify(message));
     } else {
       console.error("WebSocket is not open");
+      triggerToast("WebSocket is not open");
     }
   };
 
@@ -152,6 +154,8 @@ export class Api {
     };
     this.sendMessage(message);
   };
+
+  // leaveGame? would probably take a game_id and player_name
 
   readyGame = (game_id: string) => {
     const message = {

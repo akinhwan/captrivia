@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Player } from "../api";
+import React from "react";
+import { Link } from "react-router-dom";
 
-const Leaderboard: React.FC<{ leaderboard: Player[] }> = ({ leaderboard }) => {
+const Leaderboard: React.FC = ({ leaderboard }) => {
   return (
     <div className="container mx-auto mt-10">
+      <Link className="text-blue-500 hover:text-blue-700" to="/">
+        ← Return to Home
+      </Link>
+
       <h3 className="text-xl mt-4 mb-4">Leaderboard</h3>
       {leaderboard && leaderboard.length != 0 ? (
         <table className="min-w-full bg-white">
