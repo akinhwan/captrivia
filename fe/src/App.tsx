@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Api, LobbyGame } from "./api";
 import { AxiosError } from "axios";
-
+import useWebSocket from "./components/useWebSocket";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Home from "./components/Home";
@@ -21,7 +21,6 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [playerName, setPlayerName] = useState<string>("");
-  const [isConnected, setIsConnected] = useState<boolean>(false);
   const [gameName, setGameName] = useState<string>("");
   const [questionCount, setQuestionCount] = useState<number>(5);
   const [leaderboard, setLeaderboard] = useState([]);
@@ -65,57 +64,13 @@ const App: React.FC = () => {
     }
   };
 
-  const handleConnect = () => {
-    api.connectToServer(playerName, (event) => {
-      const data = JSON.parse(event.data);
-      console.log(data);
-      if (data.error) {
-        toast.error(`${data.error}`);
-      } else if (data.type === "game_player_enter") {
-        // send creator straight into the game
-        navigate("/game", { state: { data: data, playerName: playerName } });
-        // when a new player enters (not creator)
-        // send latest data.payload.players_ready array to Game to display status
-      } else if (data.type === "game_join") {
-        // setJoinedGames((prevJoinedGames) =>
-        //   new Set(prevJoinedGames).add(data.id)
-        // );
-      } else if (data.type === "game_create") {
-        fetchGames();
-      } else if (data.type === "game_destroy") {
-        fetchGames();
-      } else if (data.type === "game_start") {
-        console.log("Game started:", data.id);
-      } else if (data.type === "game_player_join") {
-        // Handle player join
-      } else if (data.type === "game_player_ready") {
-        // TODO
-        // update state of ready players
-        // navigate("/game", { state: { player_ready: data.payload.player } });
-      } else if (data.type === "game_player_leave") {
-        // Handle player leave
-      } else if (data.type === "game_countdown") {
-        // Handle countdown
-      } else if (data.type === "game_question") {
-        navigate("/game", {
-          state: { question: data, playerName: playerName },
-        });
-      } else if (data.type === "game_player_correct") {
-        if (data.payload.player === playerName) {
-          toast.success("Correct Answer!");
-        }
-      } else if (data.type === "game_player_incorrect") {
-        if (data.payload.player === playerName) {
-          toast.error("Incorrect Answer.");
-        }
-      } else if (data.type === "game_end") {
-        fetchLeaderboard();
-        fetchGames();
-        navigate("/leaderboard");
-      }
-    });
-    setIsConnected(true);
-  };
+  const { isConnected, handleConnect, disconnect } = useWebSocket(
+    api,
+    playerName,
+    fetchGames,
+    fetchLeaderboard,
+    navigate
+  );
 
   const handleCreateGame = async () => {
     api.createGame(gameName, questionCount);
@@ -148,13 +103,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     fetchLeaderboard();
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      api.disconnect(); // Cleanup WebSocket connection on component unmount
-      setIsConnected(false);
-    };
   }, []);
 
   return (
