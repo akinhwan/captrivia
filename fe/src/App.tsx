@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
-import { Api, LobbyGame } from "./api";
-import { AxiosError } from "axios";
+import { Api } from "./api";
 import useWebSocket from "./components/useWebSocket";
+import useApi from "./components/useApi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Home from "./components/Home";
@@ -17,52 +17,25 @@ export const triggerToast = (message: string) => {
 };
 
 const App: React.FC = () => {
-  const [games, setGames] = useState<LobbyGame[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [playerName, setPlayerName] = useState<string>("");
   const [gameName, setGameName] = useState<string>("");
   const [questionCount, setQuestionCount] = useState<number>(5);
-  const [leaderboard, setLeaderboard] = useState([]);
+
+  const {
+    games,
+    isLoading,
+    error,
+    leaderboard,
+    fetchGames,
+    fetchLeaderboard,
+    handleCreateGame,
+    handleJoinGame,
+    handleReadyGame,
+    handleStartGame,
+    handleAnswerGame,
+  } = useApi(api, gameName, questionCount, setGameName, setQuestionCount);
+
   const navigate = useNavigate();
-
-  const fetchGames = async () => {
-    try {
-      const gameList = await api.fetchGameList();
-      setGames(gameList);
-      setIsLoading(false);
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        setError("Failed to fetch game list: " + error.message);
-      } else {
-        console.error(
-          "An unknown error occurred while fetching the game list:",
-          error
-        );
-        setError("An unknown error occurred. Please try again later.");
-      }
-      setIsLoading(false);
-    }
-  };
-
-  const fetchLeaderboard = async () => {
-    try {
-      const leaderboardResults = await api.fetchLeaderboard();
-      setLeaderboard(leaderboardResults);
-      setIsLoading(false);
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        setError("Failed to fetch leaderboard: " + error.message);
-      } else {
-        console.error(
-          "An unknown error occurred while fetching the leaderboard:",
-          error
-        );
-        setError("An unknown error occurred. Please try again later.");
-      }
-      setIsLoading(false);
-    }
-  };
 
   const { isConnected, handleConnect, disconnect } = useWebSocket(
     api,
@@ -71,35 +44,6 @@ const App: React.FC = () => {
     fetchLeaderboard,
     navigate
   );
-
-  const handleCreateGame = async () => {
-    api.createGame(gameName, questionCount);
-    setGameName("");
-    setQuestionCount(5);
-    fetchGames();
-  };
-
-  const handleJoinGame = (game_id: string) => {
-    console.log(`Joining game: ${game_id}`);
-    api.joinGame(game_id);
-  };
-
-  const handleReadyGame = (game_id: string) => {
-    api.readyGame(game_id);
-  };
-
-  const handleStartGame = (game_id: string) => {
-    api.startGame(game_id);
-    // toast.error("Cannot start game: not all players are ready");
-  };
-
-  const handleAnswerGame = (
-    game_id: string,
-    index: number,
-    question_id: string
-  ) => {
-    api.answerGame(game_id, index, question_id);
-  };
 
   useEffect(() => {
     fetchLeaderboard();

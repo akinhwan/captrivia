@@ -2,6 +2,7 @@
 import { useState, useCallback } from "react";
 import { Api } from "../api"; // Adjust the import path as necessary
 import { toast } from "react-toastify";
+import { updateGameState, useGame } from "./GameContext";
 
 const useWebSocket = (
   api: Api,
@@ -11,6 +12,7 @@ const useWebSocket = (
   navigate: any
 ) => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
+  const { updateGameState } = useGame();
 
   const handleConnect = useCallback(() => {
     api.connectToServer(playerName, (event) => {
@@ -22,7 +24,9 @@ const useWebSocket = (
         // Handle different types of messages
         switch (data.type) {
           case "game_create":
+            console.log("game created!");
             fetchGames();
+            break;
           case "game_destroy":
             fetchGames();
             break;
@@ -32,9 +36,10 @@ const useWebSocket = (
             navigate("/leaderboard");
             break;
           case "game_question":
-            navigate("/game", {
-              state: { question: data, playerName: playerName },
-            });
+            // navigate("/game", {
+            //   state: { question: data, playerName: playerName },
+            // });
+            updateGameState({ question: data });
             break;
           case "game_player_correct":
             if (data.payload.player === playerName) {
@@ -47,21 +52,27 @@ const useWebSocket = (
             }
             break;
           case "game_player_enter":
-            navigate("/game", {
-              state: { data: data, playerName: playerName },
-            });
+            navigate("/game");
+            updateGameState({ data: data, playerName: playerName });
+            if (data.payload.players.length === 1) {
+              updateGameState({ game_creator: true });
+            }
+            break;
           case "game_join":
-          //
+            console.log("game joined!");
+            break;
           case "game_start":
             console.log("Game started:", data.id);
+            break;
           case "game_player_join":
-          //
+            break;
           case "game_player_ready":
-          //
+            updateGameState({ player_ready: data.payload.player });
+            break;
           case "game_player_leave":
-          //
+            break;
           case "game_player_countdown":
-          //
+            break;
         }
       }
     });

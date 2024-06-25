@@ -1,27 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useGame } from "./GameContext";
 
 const Game: React.FC = ({
   handleAnswerGame,
   handleReadyGame,
   handleStartGame,
 }) => {
-  const location = useLocation();
-  const { data, playerName, question } = location.state || {
-    data: null,
-    playerName: null,
-    question: null,
-  };
+  const { gameState, resetGameState } = useGame();
+  console.log(gameState);
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [isReady, setIsReady] = useState<boolean>(false);
+  const isReady = gameState.player_ready === gameState.playerName;
+
+  // useEffect(() => {
+  //   return () => {
+  //     resetGameState();
+  //   };
+  // }, []);
 
   useEffect(() => {
-    if (question) {
-      setRemainingTime(question.payload.seconds);
+    if (gameState.question) {
+      setRemainingTime(gameState.question.payload.seconds);
       setSelectedOption(null);
     }
-  }, [question]);
+  }, [gameState.question]);
 
   useEffect(() => {
     if (remainingTime > 0) {
@@ -35,36 +37,35 @@ const Game: React.FC = ({
   const handleOptionClick = (index: number) => {
     setSelectedOption(index);
     if (handleAnswerGame) {
-      handleAnswerGame(question.id, index, question.payload.id);
+      handleAnswerGame(
+        gameState.question.id,
+        index,
+        gameState.question.payload.id
+      );
     }
   };
-
-  // const handleReadyClick = () => {
-  //   handleReadyGame(data.id);
-  //   setIsRdyBtnDisabled(true);
-  // };
 
   return (
     <>
       <p className="fixed top-4 right-4">
-        Player Name: <b>{playerName}</b>
+        Player Name: <b>{gameState.playerName}</b>
       </p>
-      {!question ? (
+      {!gameState.question ? (
         <>
-          {data && (
+          {gameState.data && (
             <>
-              <p>Game ID: {data.id}</p>
-              <p>Game Name: {data.payload.name}</p>
-              <p>{JSON.stringify(data.payload.players)}</p>
-              <p>
+              <p>Game ID: {gameState.data.id}</p>
+              <p>Game Name: {gameState.data.payload.name}</p>
+              <p>Players: {gameState.data.payload.players.join(", ")}</p>
+              {/* <p>
                 {data.payload.players_ready &&
                   JSON.stringify(data.payload.players_ready)}
-              </p>
-              <p>Question Count: {data.payload.question_count}</p>
+              </p> */}
+              <p>Question Count: {gameState.data.payload.question_count}</p>
             </>
           )}
           <button
-            onClick={() => handleReadyGame(data.id)}
+            onClick={() => handleReadyGame(gameState.data.id)}
             className={`bg-yellow-500 text-white px-4 py-2 rounded mt-2 ${
               isReady ? "opacity-50 cursor-not-allowed" : ""
             }`}
@@ -72,9 +73,9 @@ const Game: React.FC = ({
           >
             Ready
           </button>
-          {isReady && (
+          {isReady && gameState.game_creator && (
             <button
-              onClick={() => handleStartGame(data.id)}
+              onClick={() => handleStartGame(gameState.data.id)}
               className="bg-green-500 text-white px-4 py-2 rounded mt-2 ml-2"
             >
               Start Game
@@ -87,12 +88,12 @@ const Game: React.FC = ({
       ) : (
         <div className="game-screen text-center mt-10">
           <h2 className="text-2xl font-semibold">
-            {question.payload.question}
+            {gameState.question.payload.question}
           </h2>
           <div className="flex justify-center mt-6">
             <div className="options flex flex-col items-start mt-6">
-              {question.payload.options &&
-                question.payload.options.map(
+              {gameState.question.payload.options &&
+                gameState.question.payload.options.map(
                   (option: string, index: number) => (
                     <button
                       key={option}
