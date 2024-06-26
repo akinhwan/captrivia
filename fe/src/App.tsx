@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Api } from "./api";
-import useWebSocket from "./components/useWebSocket";
-import useApi from "./components/useApi";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import useWebSocket from "./hooks/useWebSocket";
+import useApi from "./hooks/useApi";
 import Home from "./components/Home";
 import Game from "./components/Game";
 import Leaderboard from "./components/Leaderboard";
 import "./index.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const api = new Api("http://localhost:8080");
 

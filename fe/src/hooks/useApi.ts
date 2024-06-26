@@ -74,7 +74,6 @@ const useApi = (
 
   const handleStartGame = (game_id: string) => {
     api.startGame(game_id);
-    // toast.error("Cannot start game: not all players are ready");
   };
 
   const handleAnswerGame = (

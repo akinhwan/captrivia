@@ -1,6 +1,5 @@
-// useWebSocket.ts
 import { useState, useEffect, useCallback } from "react";
-import { Api } from "../api"; // Adjust the import path as necessary
+import { Api } from "../api";
 import { toast } from "react-toastify";
 import { useGame } from "./GameContext";
 

@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
-import { GameProvider } from "./components/GameContext";
+import { GameProvider } from "./hooks/GameContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

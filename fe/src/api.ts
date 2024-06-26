@@ -155,8 +155,6 @@ export class Api {
     this.sendMessage(message);
   };
 
-  // leaveGame? would probably take a game_id and player_name
-
   readyGame = (game_id: string) => {
     const message = {
       type: "ready",

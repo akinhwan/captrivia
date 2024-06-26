@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useGame } from "./GameContext";
+import { useGame } from "../hooks/GameContext";
 import { useNavigate } from "react-router-dom";
 
 type GameProps = {
@@ -47,13 +47,13 @@ const Game: React.FC<GameProps> = ({
   const [isReady, setIsReady] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log(gameState);
+    console.log(`Game State: ${gameState}`);
+    if (gameState.data === null) {
+      navigate("/");
+    }
     if (gameState.question) {
       setRemainingTime(gameState.question.payload.seconds);
       setSelectedOption(null);
-    }
-    if (gameState.data === null) {
-      navigate("/");
     }
     if (gameState.readyPlayers) {
       setIsReady(gameState.readyPlayers.includes(gameState.playerName));
