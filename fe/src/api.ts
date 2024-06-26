@@ -89,7 +89,7 @@ export class Api {
             data.type === "game_player_join" ||
             data.type === "game_player_leave"
           ) {
-            this.onMessage(event); // Pass the message to the provided onMessage handler
+            this.onMessage(event);
           } else {
             this.onMessage(event);
           }
@@ -104,7 +104,7 @@ export class Api {
         console.log("Disconnected from server", event);
         if (event.code !== 1000) {
           // Reconnect only if not a normal close
-          setTimeout(connect, 1000); // Try to reconnect after 1 second
+          setTimeout(connect, 1000);
         }
       };
     };

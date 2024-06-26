@@ -2,12 +2,45 @@ import React, { useState, useEffect } from "react";
 import { useGame } from "./GameContext";
 import { useNavigate } from "react-router-dom";
 
-const Game: React.FC = ({
+type GameProps = {
+  handleAnswerGame: (
+    questionId: string,
+    optionIndex: number,
+    payloadId: string
+  ) => void;
+  handleReadyGame: (gameId: string) => void;
+  handleStartGame: (gameId: string) => void;
+};
+
+type GameState = {
+  question: {
+    id: string;
+    payload: {
+      seconds: number;
+      id: string;
+      question: string;
+      options: string[];
+    };
+  };
+  data: {
+    id: string;
+    payload: {
+      name: string;
+      players: string[];
+      question_count: number;
+    };
+  };
+  playerName: string;
+  readyPlayers: string[];
+  game_creator?: boolean;
+};
+
+const Game: React.FC<GameProps> = ({
   handleAnswerGame,
   handleReadyGame,
   handleStartGame,
 }) => {
-  const { gameState } = useGame();
+  const { gameState } = useGame() as { gameState: GameState };
   const navigate = useNavigate();
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
