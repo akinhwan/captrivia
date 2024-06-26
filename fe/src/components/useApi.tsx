@@ -1,5 +1,5 @@
 // useApi.ts
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Api, LobbyGame } from "../api"; // Adjust import paths as necessary
 import { AxiosError } from "axios";
 
@@ -65,6 +65,7 @@ const useApi = (
   const handleJoinGame = (game_id: string) => {
     console.log(`Joining game: ${game_id}`);
     api.joinGame(game_id);
+    fetchGames();
   };
 
   const handleReadyGame = (game_id: string) => {
@@ -83,10 +84,6 @@ const useApi = (
   ) => {
     api.answerGame(game_id, index, question_id);
   };
-  useEffect(() => {
-    fetchLeaderboard();
-    // Optionally, fetchGames or other initial data fetching can be done here
-  }, [fetchLeaderboard]);
 
   return {
     games,

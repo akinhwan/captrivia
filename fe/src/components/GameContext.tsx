@@ -1,7 +1,15 @@
 // GameContext.tsx
-import React, { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 const GameContext = createContext(null);
+
+const initialState = {
+  data: null,
+  question: null,
+  readyPlayers: [],
+  game_creator: false,
+  playerName: "",
+};
 
 export const GameProvider = ({ children }) => {
   const [gameState, setGameState] = useState({});
@@ -11,7 +19,7 @@ export const GameProvider = ({ children }) => {
   };
 
   const resetGameState = () => {
-    setGameState({});
+    setGameState(initialState);
   };
 
   return (

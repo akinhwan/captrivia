@@ -1,29 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useGame } from "./GameContext";
+import { useNavigate } from "react-router-dom";
 
 const Game: React.FC = ({
   handleAnswerGame,
   handleReadyGame,
   handleStartGame,
 }) => {
-  const { gameState, resetGameState } = useGame();
-  console.log(gameState);
+  const { gameState } = useGame();
+  const navigate = useNavigate();
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const isReady = gameState.player_ready === gameState.playerName;
-
-  // useEffect(() => {
-  //   return () => {
-  //     resetGameState();
-  //   };
-  // }, []);
+  const [isReady, setIsReady] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log(gameState);
     if (gameState.question) {
       setRemainingTime(gameState.question.payload.seconds);
       setSelectedOption(null);
     }
-  }, [gameState.question]);
+    if (Object.keys(gameState).length === 0) {
+      navigate("/");
+    }
+    if (gameState.readyPlayers) {
+      setIsReady(gameState.readyPlayers.includes(gameState.playerName));
+    }
+  }, [gameState]);
 
   useEffect(() => {
     if (remainingTime > 0) {
@@ -57,10 +59,6 @@ const Game: React.FC = ({
               <p>Game ID: {gameState.data.id}</p>
               <p>Game Name: {gameState.data.payload.name}</p>
               <p>Players: {gameState.data.payload.players.join(", ")}</p>
-              {/* <p>
-                {data.payload.players_ready &&
-                  JSON.stringify(data.payload.players_ready)}
-              </p> */}
               <p>Question Count: {gameState.data.payload.question_count}</p>
             </>
           )}
@@ -81,9 +79,6 @@ const Game: React.FC = ({
               Start Game
             </button>
           )}
-          {/* <div className="game-screen text-center mt-10">
-          No question available
-        </div> */}
         </>
       ) : (
         <div className="game-screen text-center mt-10">
