@@ -63,7 +63,7 @@ const Home: React.FC = ({
             value={questionCount}
             onChange={(e) => setQuestionCount(Number(e.target.value))}
             placeholder="Enter number of questions"
-            className="border p-2 mb-2 ml-2"
+            className="border p-2 mb-2 ml-2 w-16"
           />
           <button
             onClick={handleCreateGame}
@@ -90,7 +90,7 @@ const Home: React.FC = ({
               <h2 className="text-xl font-semibold">{game.name}</h2>
               <p>Question Count: {game.question_count}</p>
               <p>State: {game.state}</p>
-              {isConnected && game.state != "ended" && (
+              {isConnected && game.state === "waiting" && (
                 <div>
                   <button
                     onClick={() => handleJoinGame(game.id)}

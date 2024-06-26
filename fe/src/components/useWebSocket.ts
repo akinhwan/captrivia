@@ -14,25 +14,46 @@ const useWebSocket = (
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const { updateGameState, resetGameState, gameState } = useGame();
   const [playerReadyEvent, setPlayerReadyEvent] = useState(null);
+  const [playerJoinEvent, setPlayerJoinEvent] = useState(null);
 
   useEffect(() => {
     if (playerReadyEvent) {
       const player = playerReadyEvent.payload.player;
       console.log("Current State:", gameState);
       console.log("Player:", player);
+      const readyPlayers = gameState.readyPlayers;
 
-      // Existing game_player_ready logic here
-      updateGameState((prevState) => {
-        const readyPlayers = prevState.readyPlayers;
-        console.log(prevState);
-        if (!readyPlayers.includes(player)) {
-          const newReadyPlayers = [...readyPlayers, player];
-          return { ...prevState, readyPlayers: newReadyPlayers };
-        }
-        return prevState;
-      });
+      if (!readyPlayers.includes(player)) {
+        const newReadyPlayers = [...readyPlayers, player];
+        updateGameState({ readyPlayers: newReadyPlayers });
+      } else {
+        updateGameState({ readyPlayers: readyPlayers });
+      }
     }
   }, [playerReadyEvent]);
+
+  useEffect(() => {
+    if (playerJoinEvent) {
+      const player = playerJoinEvent.payload.player;
+      const players = gameState.data.payload.players;
+      if (!players.includes(player)) {
+        const newPlayers = [...players, player];
+        updateGameState({
+          data: {
+            ...gameState.data,
+            payload: { ...gameState.data.payload, players: newPlayers },
+          },
+        });
+      } else {
+        updateGameState({
+          data: {
+            ...gameState.data,
+            payload: { ...gameState.data.payload, players: players },
+          },
+        });
+      }
+    }
+  }, [playerJoinEvent]);
 
   const handleConnect = useCallback(() => {
     api.connectToServer(playerName, (event) => {
@@ -57,6 +78,9 @@ const useWebSocket = (
             break;
           case "game_player_ready":
             setPlayerReadyEvent(data);
+            break;
+          case "game_player_join":
+            setPlayerJoinEvent(data);
             break;
           case "game_question":
             updateGameState({ question: data });
@@ -83,11 +107,7 @@ const useWebSocket = (
             navigate("/leaderboard");
             resetGameState();
             break;
-          case "game_join":
-            break;
           case "game_start":
-            break;
-          case "game_player_join":
             break;
           case "game_player_leave":
             break;

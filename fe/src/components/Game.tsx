@@ -52,7 +52,7 @@ const Game: React.FC<GameProps> = ({
       setRemainingTime(gameState.question.payload.seconds);
       setSelectedOption(null);
     }
-    if (Object.keys(gameState).length === 0) {
+    if (gameState.data === null) {
       navigate("/");
     }
     if (gameState.readyPlayers) {
@@ -89,10 +89,26 @@ const Game: React.FC<GameProps> = ({
         <>
           {gameState.data && (
             <>
-              <p>Game ID: {gameState.data.id}</p>
-              <p>Game Name: {gameState.data.payload.name}</p>
-              <p>Players: {gameState.data.payload.players.join(", ")}</p>
+              <h1 className="text-4xl font-bold mb-4">
+                {gameState.data.payload.name}
+              </h1>
+              {/* <p>Game ID: {gameState.data.id}</p> */}
               <p>Question Count: {gameState.data.payload.question_count}</p>
+              <ul className="list-disc">
+                Players:
+                {gameState.data.payload.players.map((player) => (
+                  <li
+                    className={`ml-8 ${
+                      gameState.readyPlayers.includes(player)
+                        ? "text-green-500"
+                        : ""
+                    }`}
+                    key={player}
+                  >
+                    {player}
+                  </li>
+                ))}
+              </ul>
             </>
           )}
           <button
